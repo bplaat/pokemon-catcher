@@ -1,0 +1,2 @@
+# Redirect default Netlify subdomain to primary domain
+https://pokemon-catcher-game.netlify.app/* https://pokemon-catcher.ml/:splat 301!
