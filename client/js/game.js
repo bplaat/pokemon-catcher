@@ -152,9 +152,10 @@ const app = new Vue({
             this.tracking = true;
             const latitude = event.coords.latitude;
             const longitude = event.coords.longitude;
+
+            this.player.doneSpawns = this.player.doneSpawns.filter(otherSpawn => (Date.now() - otherSpawn.time) < otherSpawn.timeout);
             for (const spawn of spawns) {
                 if (crow(spawn.latitude, spawn.longitude, latitude, longitude) <= spawn.radius) {
-                    this.player.doneSpawns = this.player.doneSpawns.filter(otherSpawn => (Date.now() - otherSpawn.time) < otherSpawn.timeout);
                     const doneSpawn = this.player.doneSpawns.find(otherSpawn => otherSpawn.id == spawn.id);
                     const pendingSpawn = this.pendingSpawns.find(otherSpawn => otherSpawn.id == spawn.id);
                     if (doneSpawn == undefined && pendingSpawn == undefined) {
