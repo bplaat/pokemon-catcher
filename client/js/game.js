@@ -172,34 +172,6 @@ const app = new Vue({
             }
         },
 
-        catchFirstSpawn() {
-            const spawn = this.pendingSpawns.shift();
-            this.player.doneSpawns.push(spawn);
-
-            const pokemon = { ...pokemons[rand(0, pokemons.length)] };
-            pokemon.uniqueId = uuidv4();
-            pokemon.level = 1;
-            pokemon.currentHealth = pokemon.health;
-            this.player.pokemons.unshift(pokemon);
-            send('player.update', { player: this.player });
-        },
-
-        revivePokemon(uniqueId) {
-            const pokemon = this.player.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
-            if (pokemon != undefined) {
-                pokemon.currentHealth = pokemon.health;
-                send('player.update', { player: this.player });
-            } else if (this.player.admin) {
-                for (const otherPlayer of this.otherPlayers) {
-                    const pokemon = otherPlayer.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
-                    if (pokemon != undefined) {
-                        pokemon.currentHealth = pokemon.health;
-                        send('player.update', { player: otherPlayer });
-                    }
-                }
-            }
-        },
-
         upgradePokemonStats(pokemon) {
             if (pokemon.level >= 25) return;
             pokemon.level++;
@@ -224,6 +196,37 @@ const app = new Vue({
                 pokemon.defense += rand(50, 100)
             } else {
                 pokemon.defense += rand(25, 50);
+            }
+        },
+
+        catchFirstSpawn() {
+            const spawn = this.pendingSpawns.shift();
+            this.player.doneSpawns.push(spawn);
+
+            const pokemon = { ...pokemons[rand(0, pokemons.length)] };
+            pokemon.uniqueId = uuidv4();
+            pokemon.level = 1;
+            for (let i = 0; i < (rand(1, 3) == 1 ? rand(1, 5) : 1); i++) {
+                this.upgradePokemonStats(pokemon);
+            }
+            pokemon.currentHealth = pokemon.health;
+            this.player.pokemons.unshift(pokemon);
+            send('player.update', { player: this.player });
+        },
+
+        revivePokemon(uniqueId) {
+            const pokemon = this.player.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
+            if (pokemon != undefined) {
+                pokemon.currentHealth = pokemon.health;
+                send('player.update', { player: this.player });
+            } else if (this.player.admin) {
+                for (const otherPlayer of this.otherPlayers) {
+                    const pokemon = otherPlayer.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
+                    if (pokemon != undefined) {
+                        pokemon.currentHealth = pokemon.health;
+                        send('player.update', { player: otherPlayer });
+                    }
+                }
             }
         },
 

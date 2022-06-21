@@ -43,9 +43,9 @@
                 <div v-if="page == 'game' && tracking">
                     <div class="box">
                         <h1 class="title is-4">Hallo {{ player.name }}!</h1>
-                        <p class="my-3">Begin met lopen van je toch, als je in de buurt komt van een Pokemon Spawn krijg je de mogelijkheid om een pokemon te vangen</p>
+                        <p class="my-3">Begin met lopen van je tocht, als je in de buurt komt van een Pokemon Spawn krijg je de mogelijkheid om een pokemon te vangen</p>
                         <div class="buttons" v-if="player.pokemons.length < pokemonsMax && pendingSpawns.length > 0">
-                            <button class="button is-link is-large" @click="catchFirstSpawn" style="width: 100%;">Je zie een pokemon, vang hem!</button>
+                            <button class="button is-link is-large" @click="catchFirstSpawn" style="width: 100%;">Je ziet een pokemon, vang hem!</button>
                         </div>
 
                         <hr>
