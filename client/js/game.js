@@ -58,7 +58,11 @@ const app = new Vue({
 
     methods: {
         connect() {
-            ws = new WebSocket('ws://localhost:8080/ws');
+            if (window.location.hostname == 'pokemon-catcher.ml' || window.location.hostname == 'pokemon-catcher-game.netlify.app') {
+                ws = new WebSocket('wss://pokemon-catcher-game.herokuapp.com/ws');
+            } else {
+                ws = new WebSocket('ws://localhost:8080/ws');
+            }
             ws.onopen = this.onOpen.bind(this);
             ws.onmessage = this.onMessage.bind(this);
             ws.onclose = this.onClose.bind(this);

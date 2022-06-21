@@ -1,6 +1,19 @@
 {
     "type": "module",
+    "name": "pokemon-catcher-server",
+    "version": "0.1.0",
+    "description": "This is the server for the Pokemon Catcher game",
+    "main": "index.js",
+    "scripts": {
+        "run": "node index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
     "dependencies": {
         "ws": "^8.8.0"
+    },
+    "author": "Bastiaan van der Plaat",
+    "license": "MIT",
+    "engines": {
+        "node": "18.x"
     }
 }
