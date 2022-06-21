@@ -37,6 +37,7 @@
 
                 <div v-if="page == 'game' && !tracking">
                     <p>Pokemon Catcher gebruikt jou geolocatie om je te kunnen volgen, geef hier toestemming voor en begin met spelen!</p>
+                    <p>Als je toestemming hebt gegeven en dit scherm zie je weer, herlaad dan de pagina!</p>
                 </div>
 
                 <div v-if="page == 'game' && tracking">
@@ -44,7 +45,7 @@
                         <h1 class="title is-4">Hallo {{ player.name }}!</h1>
                         <p class="my-3">Begin met lopen van je toch, als je in de buurt komt van een Pokemon Spawn krijg je de mogelijkheid om een pokemon te vangen</p>
                         <div class="buttons" v-if="player.pokemons.length < pokemonsMax && pendingSpawns.length > 0">
-                            <button class="button is-link is-large" @click="catchFirstSpawn">Een wilde pokemon komt te voorschijn, gooi een bal!</button>
+                            <button class="button is-link is-large" @click="catchFirstSpawn" style="width: 100%;">Je zie een pokemon, vang hem!</button>
                         </div>
 
                         <hr>
@@ -55,22 +56,23 @@
                             </div>
                         </div>
                         <p v-else><i>Je hebt op dit moment nog geen elke pokemon gevangen</i></p>
-                    </div>
 
-                    <div class="box" v-if="player.admin">
-                        <h2 class="title is-4">(ADMIN) Beheer andere verbonden spelers</h2>
-                        <div v-if="otherPlayers.length > 0">
-                            <div class="box" v-for="otherPlayer in otherPlayers" :key="otherPlayer.id">
-                                <h3 class="title is-4">{{ otherPlayer.name }}'s pokemons ({{ otherPlayer.pokemons.length }} / {{ pokemonsMax }})</h3>
-                                <div class="columns is-multiline" v-if="otherPlayer.pokemons.length > 0">
-                                    <div class="column is-one-quarter" v-for="pokemon in otherPlayer.pokemons" :key="pokemon.uniqueId">
-                                        <pokemon-item :player="player" :pokemon="pokemon" />
+                        <div v-if="player.admin">
+                            <hr>
+                            <h2 class="title is-4">(ADMIN) Beheer andere verbonden spelers</h2>
+                            <div v-if="otherPlayers.length > 0">
+                                <div class="box" v-for="otherPlayer in otherPlayers" :key="otherPlayer.id">
+                                    <h3 class="title is-4">{{ otherPlayer.name }}'s pokemons ({{ otherPlayer.pokemons.length }} / {{ pokemonsMax }})</h3>
+                                    <div class="columns is-multiline" v-if="otherPlayer.pokemons.length > 0">
+                                        <div class="column is-one-quarter" v-for="pokemon in otherPlayer.pokemons" :key="pokemon.uniqueId">
+                                            <pokemon-item :player="player" :pokemon="pokemon" />
+                                        </div>
                                     </div>
+                                    <p v-else><i>Deze speler heeft op dit moment nog geen elke pokemon gevangen</i></p>
                                 </div>
-                                <p v-else><i>Deze speler heeft op dit moment nog geen elke pokemon gevangen</i></p>
                             </div>
+                            <p v-else><i>Er zijn op dit moment geen andere spelers verbonden</i></p>
                         </div>
-                        <p v-else><i>Er zijn op dit moment geen andere spelers verbonden</i></p>
                     </div>
                 </div>
             </div>

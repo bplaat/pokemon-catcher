@@ -179,7 +179,7 @@ const app = new Vue({
             const pokemon = { ...pokemons[rand(0, pokemons.length)] };
             pokemon.uniqueId = uuidv4();
             pokemon.level = 1;
-            pokemon.currentHealth = Math.floor(pokemon.health * (rand(5, 10) / 10));
+            pokemon.currentHealth = pokemon.health;
             this.player.pokemons.unshift(pokemon);
             send('player.update', { player: this.player });
         },
