@@ -28,6 +28,9 @@ Vue.component('pokemon-item', {
         revivePokemon() {
             this.$parent.$emit('revivePokemon', this.pokemon.uniqueId);
         },
+        upgradePokemon() {
+            this.$parent.$emit('upgradePokemon', this.pokemon.uniqueId);
+        },
         deletePokemon() {
             this.$parent.$emit('deletePokemon', this.pokemon.uniqueId);
         }
@@ -48,6 +51,7 @@ const app = new Vue({
 
     created() {
         this.$on('revivePokemon', this.revivePokemon);
+        this.$on('upgradePokemon', this.upgradePokemon);
         this.$on('deletePokemon', this.deletePokemon);
         this.connect();
     },
@@ -134,6 +138,7 @@ const app = new Vue({
             if (this.player.pokemons.length < this.pokemonsMax) {
                 const pokemon = JSON.parse(JSON.stringify(pokemons[rand(0, pokemons.length)]));
                 pokemon.uniqueId = uuidv4();
+                pokemon.level = 1;
                 pokemon.currentHealth = Math.floor(pokemon.health * (rand(1, 10) / 10));
                 this.player.pokemons.unshift(pokemon);
                 send('player.update', { player: this.player });
@@ -150,6 +155,49 @@ const app = new Vue({
                     const pokemon = otherPlayer.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
                     if (pokemon != null) {
                         pokemon.currentHealth = pokemon.health;
+                        send('player.update', { player: otherPlayer });
+                    }
+                }
+            }
+        },
+
+        upgradePokemonStats(pokemon) {
+            if (pokemon.level >= 25) return;
+            pokemon.level++;
+
+            if (rand(1, 6) == 1) {
+                const healthIncrease = rand(200, 400);
+                pokemon.currentHealth += healthIncrease;
+                pokemon.health += healthIncrease;
+            } else {
+                const healthIncrease = rand(100, 200);
+                pokemon.currentHealth += healthIncrease;
+                pokemon.health += healthIncrease;
+            }
+
+            if (rand(1, 6) == 1) {
+                pokemon.attack += rand(50, 100)
+            } else {
+                pokemon.attack += rand(25, 50);
+            }
+
+            if (rand(1, 6) == 1) {
+                pokemon.defense += rand(50, 100)
+            } else {
+                pokemon.defense += rand(25, 50);
+            }
+        },
+
+        upgradePokemon(uniqueId) {
+            const pokemon = this.player.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
+            if (pokemon != null) {
+                this.upgradePokemonStats(pokemon);
+                send('player.update', { player: this.player });
+            } else if (this.player.admin) {
+                for (const otherPlayer of this.otherPlayers) {
+                    const pokemon = otherPlayer.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
+                    if (pokemon != null) {
+                        this.upgradePokemonStats(pokemon);
                         send('player.update', { player: otherPlayer });
                     }
                 }

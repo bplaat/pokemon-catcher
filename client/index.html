@@ -46,11 +46,12 @@
 
                         <h2 class="title is-4">Jouw pokemons ({{ player.pokemons.length }} / {{ pokemonsMax }})</h2>
 
-                        <div class="columns is-multiline">
+                        <div class="columns is-multiline" v-if="player.pokemons.length > 0">
                             <div class="column is-one-quarter" v-for="pokemon in player.pokemons" :key="pokemon.uniqueId">
                                 <pokemon-item :player="player" :pokemon="pokemon" />
                             </div>
                         </div>
+                        <p v-else><i>Je hebt op dit moment nog geen elke pokemon gevangen</i></p>
                     </div>
 
                     <div class="box" v-if="player.admin">
@@ -58,11 +59,12 @@
                         <div v-if="otherPlayers.length > 0">
                             <div class="box" v-for="otherPlayer in otherPlayers" :key="otherPlayer.id">
                                 <h3 class="title is-4">{{ otherPlayer.name }}'s pokemons ({{ otherPlayer.pokemons.length }} / {{ pokemonsMax }})</h3>
-                                <div class="columns is-multiline">
+                                <div class="columns is-multiline" v-if="otherPlayer.pokemons.length > 0">
                                     <div class="column is-one-quarter" v-for="pokemon in otherPlayer.pokemons" :key="pokemon.uniqueId">
                                         <pokemon-item :player="player" :pokemon="pokemon" />
                                     </div>
                                 </div>
+                                <p v-else><i>Deze speler heeft op dit moment nog geen elke pokemon gevangen</i></p>
                             </div>
                         </div>
                         <p v-else><i>Er zijn op dit moment geen andere spelers verbonden</i></p>
@@ -92,13 +94,15 @@
                     {{ pokemon.name }}
                     <button @click="isDeleting = true" class="delete is-pulled-right"></button>
                 </h2>
+                <p>Level: <b>{{ pokemon.level }}</b></p>
                 <p>Levenspunten: <b>{{ pokemon.currentHealth }} / {{ pokemon.health }}</b></p>
                 <p>Aanvalspunten: <b>{{ pokemon.attack }}</b></p>
                 <p>Verdedigingspunten: <b>{{ pokemon.defense }}</b></p>
             </div>
 
             <div class="card-footer" v-if="player.admin">
-                <a href="#" @click.prevent="revivePokemon" class="card-footer-item">Revive</a>
+                <a href="#" @click.prevent="revivePokemon" class="card-footer-item">Herstel</a>
+                <a href="#" @click.prevent="upgradePokemon" class="card-footer-item">Upgrade</a>
             </div>
 
             <div :class="{ modal: true, 'is-active': isDeleting }">
