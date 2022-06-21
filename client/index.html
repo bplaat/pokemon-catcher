@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>Pokemon Catcher</title>
+    <link rel="shortcut icon" href="data:,">
+    <link rel="stylesheet" href="css/bulma.min.css">
+    <link rel="stylesheet" href="css/game.css">
+    <script src="js/vue.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="section">
+            <div class="container">
+                <h1 class="title mb-5">Pokemon Catcher</h1>
+
+                <div v-if="page == 'connecting'">
+                    <p>Verbinden met de game server...</p>
+                </div>
+
+                <div v-if="page == 'connection-close'">
+                    <p>De verbinding met de server is verbroken, herlaad de pagina!</p>
+                </div>
+
+                <form v-if="page == 'auth'" class="box" @submit.prevent="authPlayer">
+                    <h1 class="title is-4">Je bent nieuw hier, wat is je naam?</h1>
+
+                    <div class="field">
+                        <input class="input" type="text" v-model="player.name" autofocus>
+                    </div>
+
+                    <div class="field">
+                        <button type="submit" class="button is-link">Ga verder</button>
+                    </div>
+                </form>
+
+                <div v-if="page == 'game'">
+                    <div class="box">
+                        <h1 class="title">Hallo {{ player.name }}</h1>
+
+                        <div class="buttons" v-if="player.pokemons.length < pokemonsMax">
+                            <button class="button is-link is-large" @click.prevent="randomPokemon">Random pokemon</button>
+                        </div>
+                    </div>
+
+                    <div class="box">
+                        <h2 class="title is-3">Jouw pokemons ({{ player.pokemons.length }} / {{ pokemonsMax }})</h2>
+
+                        <div class="columns is-multiline">
+                            <div class="column is-one-quarter" v-for="pokemon in player.pokemons" :key="pokemon.uniqueId">
+                                <pokemon-item :pokemon="pokemon" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="container content">
+                <p v-if="connected" class="has-text-success-dark"><b>Verbonden met de server 😀</b></p>
+                <p v-else class="has-text-danger-dark"><b>Niet verbonden met de server 😭</b></p>
+                <p>Gemaakt door <a href="https://youtu.be/dQw4w9WgXcQ?t=43" target="_blank">Bagheera</a> van de Die Kantanky's</p>
+                <p>Voor de broncode check <a href="https://github.com/bplaat/pokemon-catcher" target="_blank">GitHub</a></p>
+            </div>
+        </div>
+    </div>
+
+    <template id="pokemon-item-template">
+        <div class="card">
+            <div class="card-image pokemon-image" :style="`background-image: url('images/pokemons/${pokemon.id}.png');`"></div>
+            <div style="background-color: #f00">
+                <div :style="`width: ${ pokemon.currentHealth / pokemon.health * 100}%; height: 8px; background-color: #0b0;`"></div>
+            </div>
+            <div class="card-content">
+                <h2 class="title is-5 mb-2">
+                    {{ pokemon.name }}
+                    <button @click="isDeleting = true" class="delete is-pulled-right"></button>
+                </h2>
+                <p>Levenspunten: <b>{{ pokemon.currentHealth }} / {{ pokemon.health }}</b></p>
+                <p>Aanvalspunten: <b>{{ pokemon.attack }}</b></p>
+                <p>Verdedigingspunten: <b>{{ pokemon.defense }}</b></p>
+            </div>
+
+            <div :class="{ modal: true, 'is-active': isDeleting }">
+                <div class="modal-background" @click="isDeleting = false"></div>
+
+                <div class="modal-card">
+                    <div class="modal-card-head">
+                        <p class="modal-card-title">Wil je deze Pokemon los laten?</p>
+                        <button class="delete" @click.prevent="isDeleting = false"></button>
+                    </div>
+
+                    <div class="modal-card-body">
+                        <div class="content">
+                            <p>Je staat op het punt om deze Pokemon los te laten!</p>
+                            <p>Dit betekend dat die niet meer in jouw bezit is en dat je er ook dus niet meer mee kan vechten!</p>
+                            <p>Deze actie kun je niet terug draaien, denk er dus goed overna!</p>
+                        </div>
+                    </div>
+
+                    <div class="modal-card-foot">
+                        <button class="button is-danger" @click.prevent="deletePokemon">Los laten</button>
+                        <button class="button" @click.prevent="isDeleting = false">Annuleren</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
