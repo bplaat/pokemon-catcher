@@ -35,17 +35,20 @@
                     </div>
                 </form>
 
-                <div v-if="page == 'game'">
+                <div v-if="page == 'game' && !tracking">
+                    <p>Pokemon Catcher gebruikt jou geolocatie om je te kunnen volgen, geef hier toestemming voor en begin met spelen!</p>
+                </div>
+
+                <div v-if="page == 'game' && tracking">
                     <div class="box">
                         <h1 class="title is-4">Hallo {{ player.name }}!</h1>
-
-                        <div class="buttons" v-if="player.pokemons.length < pokemonsMax">
-                            <button class="button is-link" @click.prevent="randomPokemon">Catch random pokemon</button>
+                        <p class="my-3">Begin met lopen van je toch, als je in de buurt komt van een Pokemon Spawn krijg je de mogelijkheid om een pokemon te vangen</p>
+                        <div class="buttons" v-if="player.pokemons.length < pokemonsMax && pendingSpawns.length > 0">
+                            <button class="button is-link is-large" @click="catchFirstSpawn">Een wilde pokemon komt te voorschijn, gooi een bal!</button>
                         </div>
+
                         <hr>
-
                         <h2 class="title is-4">Jouw pokemons ({{ player.pokemons.length }} / {{ pokemonsMax }})</h2>
-
                         <div class="columns is-multiline" v-if="player.pokemons.length > 0">
                             <div class="column is-one-quarter" v-for="pokemon in player.pokemons" :key="pokemon.uniqueId">
                                 <pokemon-item :player="player" :pokemon="pokemon" />

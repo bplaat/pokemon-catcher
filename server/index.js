@@ -3,6 +3,14 @@
 import { createServer } from 'http';
 import { readFileSync } from 'fs';
 import { WebSocketServer } from 'ws';
+import crypto from 'crypto';
+
+// Utils
+function uuidv4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
 
 // Config
 const SERVER_PORT = process.env.PORT || 8080;
@@ -12,8 +20,8 @@ const POKEMONS_MAX = 12;
 const pokemons = JSON.parse(readFileSync('pokemons.json'));
 
 const spawns = [
-    { lon: 52.0050831, lat: 4.7512805 },
-    { lon: 52.005187, lat: 4.752355 },
+    { id: uuidv4(), name: 'Post 1', latitude: 52.005302938354355, longitude: 4.751652132282453, radius: 25, timeout: 60 * 1000 },
+    { id: uuidv4(), name: 'Post 2', latitude: 52.005117123634726, longitude: 4.7539506386986075, radius: 25, timeout: 60 * 1000 }
 ];
 
 // Websocket server
