@@ -64,7 +64,7 @@
                         <p v-else><i>Je hebt op dit moment nog geen elke pokemon gevangen</i></p>
                     </div>
 
-                    <div v-if="isCatching" :class="{ modal: true, 'is-active': isCatching }">
+                    <div v-if="isCatching" :class="{ modal: true, 'is-active': isCatching }" style="z-index: 9999;">
                         <div class="modal-background" @click="isCatching = false"></div>
 
                         <div class="modal-card">
@@ -167,11 +167,11 @@
             </div>
 
             <div class="card-footer" v-if="player.admin && actions">
-                <a href="#" @click.prevent="revivePokemon" class="card-footer-item">Herstel</a>
-                <a href="#" @click.prevent="upgradePokemon" class="card-footer-item">Upgrade</a>
+                <a href="#" @click.prevent="healPokemon" class="card-footer-item">Herstel</a>
+                <a href="#" @click.prevent="levelPokemon" class="card-footer-item">Level</a>
             </div>
 
-            <div v-if="isDeleting" :class="{ modal: true, 'is-active': isDeleting }">
+            <div v-if="isDeleting" :class="{ modal: true, 'is-active': isDeleting }" style="z-index: 9999;">
                 <div class="modal-background" @click="isDeleting = false"></div>
 
                 <div class="modal-card">

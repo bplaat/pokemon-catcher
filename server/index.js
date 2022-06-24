@@ -34,6 +34,9 @@ wss.on('connection', ws => {
     function send(type, data) {
         ws.send(JSON.stringify({ type, data }));
     }
+    function sendOtherClient(client, type, data) {
+        client.ws.send(JSON.stringify({ type, data }));
+    }
     function broadcast(type, data) {
         for (const client of clients) {
             if (client.player.id != playerId) {
@@ -70,6 +73,11 @@ wss.on('connection', ws => {
             otherClient.player.admin = data.player.admin;
             otherClient.player.pokemons = data.player.pokemons;
             broadcast('player.update', { player: data.player });
+        }
+
+        if (type == 'player.sound') {
+            const otherClient = clients.find(client => client.player.id == data.player.id);
+            sendOtherClient(otherClient, 'player.sound', { player: data.player, sound: data.sound });
         }
     });
 

@@ -42,11 +42,11 @@ Vue.component('pokemon-item', {
         };
     },
     methods: {
-        revivePokemon() {
-            this.$parent.$emit('revivePokemon', this.pokemon.uniqueId);
+        healPokemon() {
+            this.$parent.$emit('healPokemon', this.pokemon.uniqueId);
         },
-        upgradePokemon() {
-            this.$parent.$emit('upgradePokemon', this.pokemon.uniqueId);
+        levelPokemon() {
+            this.$parent.$emit('levelPokemon', this.pokemon.uniqueId);
         },
         deletePokemon() {
             this.$parent.$emit('deletePokemon', this.pokemon.uniqueId);
@@ -72,8 +72,8 @@ const app = new Vue({
     },
 
     created() {
-        this.$on('revivePokemon', this.revivePokemon);
-        this.$on('upgradePokemon', this.upgradePokemon);
+        this.$on('healPokemon', this.healPokemon);
+        this.$on('levelPokemon', this.levelPokemon);
         this.$on('deletePokemon', this.deletePokemon);
         this.connect();
     },
@@ -141,6 +141,11 @@ const app = new Vue({
                 }
             }
 
+            if (type == 'player.sound') {
+                if (data.sound == 'heal') new Audio('/sounds/heal.mp3').play();
+                if (data.sound == 'level') new Audio('/sounds/level.mp3').play();
+            }
+
             if (type == 'player.disconnect') {
                 this.otherPlayers = this.otherPlayers.filter(player => player.id != data.player.id);
             }
@@ -163,7 +168,7 @@ const app = new Vue({
 
             for (const spawn of spawns) {
                 L.marker([ spawn.latitude, spawn.longitude ]).addTo(map)
-                    .bindPopup(`<b>${spawn.name}</b><br>${spawn.latitude.toFixed(6)}&times;${spawn.longitude.toFixed(6)}`);
+                    .bindPopup(`<b>${spawn.name}</b><br>${spawn.latitude.toFixed(6)}, ${spawn.longitude.toFixed(6)}`);
             }
         },
 
@@ -195,6 +200,7 @@ const app = new Vue({
                     this.player.admin = true;
                 }
                 this.page = 'game';
+                new Audio('/sounds/intro.mp3').play();
                 send('player.connect', { player: this.player });
             }
         },
@@ -210,7 +216,7 @@ const app = new Vue({
             send('player.update', { player: otherPlayer });
         },
 
-        upgradePokemonStats(pokemon) {
+        levelPokemonStats(pokemon) {
             if (pokemon.level >= 25) return;
             pokemon.level++;
 
@@ -246,58 +252,65 @@ const app = new Vue({
             const spawn = this.pendingSpawns.shift();
             this.player.doneSpawns.push(spawn);
 
-            const pokemon = { ...pokemons[rand(0, pokemons.length)] };
+            const pokemon = { ...pokemons[rand(0, pokemons.length - 1)] };
             pokemon.uniqueId = uuidv4();
             pokemon.level = 1;
             for (let i = 0; i < (rand(1, 3) == 1 ? rand(1, 5) : 1); i++) {
-                this.upgradePokemonStats(pokemon);
+                this.levelPokemonStats(pokemon);
             }
             pokemon.currentHealth = pokemon.health;
             this.player.pokemons.unshift(pokemon);
             send('player.update', { player: this.player });
 
             this.hasCatched = true;
+            new Audio('/sounds/catch.mp3').play();
             setTimeout(() => {
                 this.$refs.pokemonBall.animate([
                     { transform: 'translate(-50%, 150%) scale(0)' },
-                    { offset: 0.5, transform: 'translate(-50%, 50%) scale(1)' },
+                    { offset: 0.25, transform: 'translate(-150%, 50%) scale(1.5)' },
+                    { offset: 0.5, transform: 'translate(-50%, -25%) scale(0.75)' },
+                    { offset: 0.75, transform: 'translate(50%, 50%) scale(0.5)' },
                     { transform: 'translate(-50%, 50%) scale(0)' }
-                ], { duration: 1500 });
+                ], { duration: 7250 });
 
                 this.$refs.pokemonItem.animate([
                     { offset: 0.75, transform: 'scale(0)' },
                     { transform: 'scale(1)' }
-                ], { duration: 1500, fill: 'forwards' });
+                ], { duration: 7500, fill: 'forwards' });
             }, 0); // Hacky
         },
 
-        revivePokemon(uniqueId) {
+        healPokemon(uniqueId) {
             const pokemon = this.player.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
             if (pokemon != undefined) {
                 pokemon.currentHealth = pokemon.health;
                 send('player.update', { player: this.player });
+                new Audio('/sounds/heal.mp3').play();
             } else if (this.player.admin) {
                 for (const otherPlayer of this.otherPlayers) {
                     const pokemon = otherPlayer.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
                     if (pokemon != undefined) {
                         pokemon.currentHealth = pokemon.health;
                         send('player.update', { player: otherPlayer });
+                        send('player.sound', { player: { id: otherPlayer.id }, sound: 'heal' });
                     }
                 }
             }
         },
 
-        upgradePokemon(uniqueId) {
+        levelPokemon(uniqueId) {
             const pokemon = this.player.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
             if (pokemon != undefined) {
-                this.upgradePokemonStats(pokemon);
+                this.levelPokemonStats(pokemon);
                 send('player.update', { player: this.player });
+                new Audio('/sounds/level.mp3').play();
             } else if (this.player.admin) {
                 for (const otherPlayer of this.otherPlayers) {
                     const pokemon = otherPlayer.pokemons.find(pokemon => pokemon.uniqueId == uniqueId);
                     if (pokemon != undefined) {
-                        this.upgradePokemonStats(pokemon);
+                        this.levelPokemonStats(pokemon);
                         send('player.update', { player: otherPlayer });
+                        send('player.sound', { player: { id: otherPlayer.id }, sound: 'level' });
                     }
                 }
             }
