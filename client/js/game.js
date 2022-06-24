@@ -167,9 +167,23 @@ const app = new Vue({
 
         authPlayer() {
             if (this.player.name.length >= 2 && this.player.name.length <= 32) {
+                if (this.player.name == 'bplaat') {
+                    this.player.admin = true;
+                }
                 this.page = 'game';
                 send('player.connect', { player: this.player });
             }
+        },
+
+        otherPlayerChangeName(otherPlayerId) {
+            const otherPlayer = this.otherPlayers.find(player => player.id == otherPlayerId);
+            send('player.update', { player: otherPlayer });
+        },
+
+        otherPlayerToggleAdmin(otherPlayerId) {
+            const otherPlayer = this.otherPlayers.find(player => player.id == otherPlayerId);
+            otherPlayer.admin = !otherPlayer.admin;
+            send('player.update', { player: otherPlayer });
         },
 
         upgradePokemonStats(pokemon) {

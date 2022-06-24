@@ -6,7 +6,6 @@
     <title>Pokemon Catcher</title>
     <link rel="shortcut icon" href="data:,">
     <link rel="stylesheet" href="css/bulma.min.css">
-    <link rel="stylesheet" href="css/game.css">
     <script src="js/vue.min.js"></script>
 </head>
 <body>
@@ -56,23 +55,46 @@
                             </div>
                         </div>
                         <p v-else><i>Je hebt op dit moment nog geen elke pokemon gevangen</i></p>
+                    </div>
 
-                        <div v-if="player.admin">
-                            <hr>
-                            <h2 class="title is-4">(ADMIN) Beheer andere verbonden spelers</h2>
-                            <div v-if="otherPlayers.length > 0">
-                                <div class="box" v-for="otherPlayer in otherPlayers" :key="otherPlayer.id">
-                                    <h3 class="title is-4">{{ otherPlayer.name }}'s pokemons ({{ otherPlayer.pokemons.length }} / {{ pokemonsMax }})</h3>
-                                    <div class="columns is-multiline" v-if="otherPlayer.pokemons.length > 0">
-                                        <div class="column is-one-quarter" v-for="pokemon in otherPlayer.pokemons" :key="pokemon.uniqueId">
-                                            <pokemon-item :player="player" :pokemon="pokemon" />
+                    <div v-if="player.admin" class="box">
+                        <h2 class="title is-4">Het admin paneel</h2>
+                        <div v-if="otherPlayers.length > 0">
+                            <div class="box" v-for="otherPlayer in otherPlayers" :key="otherPlayer.id">
+                                <h3 class="title is-4">{{ otherPlayer.name }}</h3>
+                                <div class="columns">
+                                    <div class="column">
+                                        <div class="field has-addons">
+                                            <div class="control">
+                                                <div class="button is-static">Spelers naam</div>
+                                            </div>
+                                            <div class="control">
+                                                <input class="input" type="text" v-model="otherPlayer.name" @input="otherPlayerChangeName(otherPlayer.id)">
+                                            </div>
                                         </div>
                                     </div>
-                                    <p v-else><i>Deze speler heeft op dit moment nog geen elke pokemon gevangen</i></p>
+                                    <div class="column">
+                                        <div class="field has-addons">
+                                            <div class="control">
+                                                <div class="button is-static">Andere acties</div>
+                                            </div>
+                                            <div class="control">
+                                                <button :class="`button ${otherPlayer.admin ? 'is-link' : 'is-danger'}`" @click="otherPlayerToggleAdmin(otherPlayer.id)">
+                                                    {{ otherPlayer.admin ? 'Maak weer normaal' : 'Geef admin rechten' }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                                <div class="columns is-multiline" v-if="otherPlayer.pokemons.length > 0">
+                                    <div class="column is-one-quarter" v-for="pokemon in otherPlayer.pokemons" :key="pokemon.uniqueId">
+                                        <pokemon-item :player="player" :pokemon="pokemon" />
+                                    </div>
+                                </div>
+                                <p v-else><i>Deze speler heeft op dit moment nog geen elke pokemon gevangen</i></p>
                             </div>
-                            <p v-else><i>Er zijn op dit moment geen andere spelers verbonden</i></p>
                         </div>
+                        <p v-else><i>Er zijn op dit moment geen andere spelers verbonden</i></p>
                     </div>
                 </div>
             </div>
@@ -90,7 +112,7 @@
 
     <template id="pokemon-item-template">
         <div class="card">
-            <div class="card-image pokemon-image" :style="`background-image: url('images/pokemons/${pokemon.id}.png');`"></div>
+            <div class="card-image pokemon-image" :style="`padding-top: 100%; background-image: url('images/pokemons/${pokemon.id}.png');  background-size: cover; background-position: center center;`"></div>
             <div style="background-color: #f00">
                 <div :style="`width: ${ pokemon.currentHealth / pokemon.health * 100}%; height: 8px; background-color: #0b0;`"></div>
             </div>
