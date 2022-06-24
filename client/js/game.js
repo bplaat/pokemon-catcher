@@ -25,6 +25,13 @@ function crow(lat1, lon1, lat2, lon2) {
     return d * 1000;
 }
 
+function formatDuration(ms) {
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return s + ' s';
+    if (s < 60 * 60) return Math.floor(s / 60) + ' m';
+    return Math.floor(s / 3600) + ' h';
+}
+
 // Global state
 let ws = undefined, pokemons = [], spawns = [];
 function send(type, data) {
@@ -167,8 +174,13 @@ const app = new Vue({
             }).addTo(map);
 
             for (const spawn of spawns) {
+                L.circle([ spawn.latitude, spawn.longitude ], { radius: spawn.radius }).addTo(map);
                 L.marker([ spawn.latitude, spawn.longitude ]).addTo(map)
-                    .bindPopup(`<b>${spawn.name}</b><br>${spawn.latitude.toFixed(6)}, ${spawn.longitude.toFixed(6)}`);
+                    .bindPopup(`
+                        <b>${spawn.name}</b><br>
+                        ${spawn.latitude.toFixed(6)}, ${spawn.longitude.toFixed(6)}<br>
+                        Timeout: ${formatDuration(spawn.timeout)}
+                    `);
             }
         },
 
