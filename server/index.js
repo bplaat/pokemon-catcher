@@ -20,8 +20,10 @@ const POKEMONS_MAX = 12;
 const pokemons = JSON.parse(readFileSync('pokemons.json'));
 
 const spawns = [
-    { id: uuidv4(), name: 'Post 1', latitude: 52.005302938354355, longitude: 4.751652132282453, radius: 25, timeout: 60 * 1000 },
-    { id: uuidv4(), name: 'Post 2', latitude: 52.005117123634726, longitude: 4.7539506386986075, radius: 25, timeout: 60 * 1000 }
+    { id: uuidv4(), name: 'Post 1', latitude: 52.005302938354355, longitude: 4.751652132282453, radius: 25, timeout: 10 * 1000 },
+    { id: uuidv4(), name: 'Post 2', latitude: 52.005117123634726, longitude: 4.7539506386986075, radius: 25, timeout: 10 * 1000 },
+    { id: uuidv4(), name: 'Post 3', latitude: 52.00566498051425, longitude: 4.750535871569437, radius: 25, timeout: 10 * 1000 },
+    { id: uuidv4(), name: 'Clubhuis', latitude: 52.008482954474154, longitude: 4.736079388865739, radius: 50, timeout: 60 * 1000 }
 ];
 
 // Websocket server

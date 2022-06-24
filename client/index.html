@@ -46,7 +46,7 @@
                         <h1 class="title is-3">Hallo {{ player.name }}!</h1>
                         <p class="my-3">Begin met lopen van je tocht, als je in de buurt komt van een Pokemon Spawn krijg je de mogelijkheid om een pokemon te vangen</p>
                         <div class="buttons" v-if="player.pokemons.length < pokemonsMax && pendingSpawns.length > 0">
-                            <button class="button is-link is-large" @click="catchFirstSpawn" style="width: 100%;">Je ziet een pokemon, vang hem!</button>
+                            <button class="button is-link is-large is-fullwidth" @click="isCatching = true, hasCatched = false">Je ziet een pokemon!</button>
                         </div>
 
                         <hr>
@@ -59,6 +59,28 @@
                         <p v-else><i>Je hebt op dit moment nog geen elke pokemon gevangen</i></p>
                     </div>
 
+                    <div v-if="isCatching" :class="{ modal: true, 'is-active': isCatching }">
+                        <div class="modal-background" @click="isCatching = false"></div>
+
+                        <div class="modal-card">
+                            <div class="modal-card-head">
+                                <p class="modal-card-title">Je ziet een pokemon!</p>
+                                <button class="delete" @click.prevent="isCatching = false"></button>
+                            </div>
+
+                            <div class="modal-card-body" style="position: relative; overflow: hidden;">
+                                <div ref="pokemonItem" style="width: 50%; min-width: 256px; margin: 0 auto; transform: scale(0);">
+                                    <pokemon-item :player="player" :pokemon="player.pokemons[0]" :actions="false" />
+                                </div>
+                                <img ref="pokemonBall" src="images/pokemon-ball.png" style="position: absolute; top: 0; left: 50%; width: 256px; height: 256px; transform: translate(-50%, 50%) scale(0);">
+                            </div>
+
+                            <div class="modal-card-foot">
+                                <button class="button is-link is-fullwidth is-large" @click.prevent="catchFirstSpawn">{{ hasCatched ? 'Ga verder' : 'Gooi een bal!' }}</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div v-if="player.admin" class="box">
                         <h2 class="title is-3">Het admin paneel</h2>
 
@@ -67,8 +89,8 @@
                             <div ref="spawnsMap" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></div>
                         </div>
 
+                        <h3 class="title is-4">Andere verbonden spelers</h3>
                         <div v-if="otherPlayers.length > 0">
-                            <h3 class="title is-4">Andere verbonden spelers</h3>
                             <div class="box" v-for="otherPlayer in otherPlayers" :key="otherPlayer.id">
                                 <h3 class="title is-4">
                                     {{ otherPlayer.name }}
@@ -131,7 +153,7 @@
             <div class="card-content">
                 <h2 class="title is-5 mb-2">
                     {{ pokemon.name }}
-                    <button @click="isDeleting = true" class="delete is-pulled-right"></button>
+                    <button v-if="actions" @click="isDeleting = true" class="delete is-pulled-right"></button>
                 </h2>
                 <p>Level: <b>{{ pokemon.level }}</b></p>
                 <p>Levenspunten: <b>{{ pokemon.currentHealth }} / {{ pokemon.health }}</b></p>
@@ -139,12 +161,12 @@
                 <p>Verdedigingspunten: <b>{{ pokemon.defense }}</b></p>
             </div>
 
-            <div class="card-footer" v-if="player.admin">
+            <div class="card-footer" v-if="player.admin && actions">
                 <a href="#" @click.prevent="revivePokemon" class="card-footer-item">Herstel</a>
                 <a href="#" @click.prevent="upgradePokemon" class="card-footer-item">Upgrade</a>
             </div>
 
-            <div :class="{ modal: true, 'is-active': isDeleting }">
+            <div v-if="isDeleting" :class="{ modal: true, 'is-active': isDeleting }">
                 <div class="modal-background" @click="isDeleting = false"></div>
 
                 <div class="modal-card">

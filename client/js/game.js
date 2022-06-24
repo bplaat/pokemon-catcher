@@ -35,7 +35,7 @@ function send(type, data) {
 // Pokemon item component
 Vue.component('pokemon-item', {
     template: document.getElementById('pokemon-item-template').innerHTML,
-    props: [ 'player', 'pokemon' ],
+    props: { 'player': {}, 'pokemon': {}, 'actions': { default() { return true } } },
     data() {
         return {
             isDeleting: false
@@ -62,11 +62,13 @@ const app = new Vue({
         connected: false,
         authed: false,
         tracking: false,
+        spawnsMapCreated: false,
+        isCatching: false,
+        hasCatched: false,
         player: { id: uuidv4(), name: '', admin: false, pokemons: [], doneSpawns: [] },
         otherPlayers: [],
         pokemonsMax: undefined,
-        pendingSpawns: [],
-        spawnsMapCreated: false
+        pendingSpawns: []
     },
 
     created() {
@@ -161,7 +163,7 @@ const app = new Vue({
 
             for (const spawn of spawns) {
                 L.marker([ spawn.latitude, spawn.longitude ]).addTo(map)
-                    .bindPopup(`<b>${spawn.name}</b><br>${spawn.latitude.toFixed(6)}x${spawn.longitude.toFixed(6)}`);
+                    .bindPopup(`<b>${spawn.name}</b><br>${spawn.latitude.toFixed(6)}&times;${spawn.longitude.toFixed(6)}`);
             }
         },
 
@@ -183,7 +185,7 @@ const app = new Vue({
 
             if (this.player.admin && !this.spawnsMapCreated) {
                 this.spawnsMapCreated = true;
-                setTimeout( this.createSpawnsMap.bind(this), 0); // Hacky
+                setTimeout(this.createSpawnsMap.bind(this), 0); // Hacky
             }
         },
 
@@ -236,6 +238,11 @@ const app = new Vue({
         },
 
         catchFirstSpawn() {
+            if (this.hasCatched) {
+                this.isCatching = false;
+                return;
+            }
+
             const spawn = this.pendingSpawns.shift();
             this.player.doneSpawns.push(spawn);
 
@@ -248,6 +255,20 @@ const app = new Vue({
             pokemon.currentHealth = pokemon.health;
             this.player.pokemons.unshift(pokemon);
             send('player.update', { player: this.player });
+
+            this.hasCatched = true;
+            setTimeout(() => {
+                this.$refs.pokemonBall.animate([
+                    { transform: 'translate(-50%, 150%) scale(0)' },
+                    { offset: 0.5, transform: 'translate(-50%, 50%) scale(1)' },
+                    { transform: 'translate(-50%, 50%) scale(0)' }
+                ], { duration: 1500 });
+
+                this.$refs.pokemonItem.animate([
+                    { offset: 0.75, transform: 'scale(0)' },
+                    { transform: 'scale(1)' }
+                ], { duration: 1500, fill: 'forwards' });
+            }, 0); // Hacky
         },
 
         revivePokemon(uniqueId) {
