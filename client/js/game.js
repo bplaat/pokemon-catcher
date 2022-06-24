@@ -65,7 +65,8 @@ const app = new Vue({
         player: { id: uuidv4(), name: '', admin: false, pokemons: [], doneSpawns: [] },
         otherPlayers: [],
         pokemonsMax: undefined,
-        pendingSpawns: []
+        pendingSpawns: [],
+        spawnsMapCreated: false
     },
 
     created() {
@@ -148,6 +149,22 @@ const app = new Vue({
             this.connected = false;
         },
 
+        createSpawnsMap() {
+            const bounds = new L.LatLngBounds();
+            for (const spawn of spawns) {
+                bounds.extend([ spawn.latitude, spawn.longitude ]);
+            }
+            const map = L.map(this.$refs.spawnsMap).fitBounds(bounds);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            for (const spawn of spawns) {
+                L.marker([ spawn.latitude, spawn.longitude ]).addTo(map)
+                    .bindPopup(`<b>${spawn.name}</b><br>${spawn.latitude.toFixed(6)}x${spawn.longitude.toFixed(6)}`);
+            }
+        },
+
         onLocationUpdate(event) {
             this.tracking = true;
             const latitude = event.coords.latitude;
@@ -162,6 +179,11 @@ const app = new Vue({
                         this.pendingSpawns.push({ id: spawn.id, time: Date.now(), timeout: spawn.timeout });
                     }
                 }
+            }
+
+            if (this.player.admin && !this.spawnsMapCreated) {
+                this.spawnsMapCreated = true;
+                setTimeout( this.createSpawnsMap.bind(this), 0); // Hacky
             }
         },
 
