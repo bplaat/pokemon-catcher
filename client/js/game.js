@@ -271,7 +271,7 @@ const app = new Vue({
             const pokemon = { ...pokemons[rand(0, rand(1, 4) == 1 ? pokemons.length - 1 : 151)] };
             pokemon.uniqueId = uuidv4();
             pokemon.level = 1;
-            for (let i = 0; i < (rand(1, 3) == 1 ? rand(2, 5) : 1) - 1; i++) {
+            for (let i = 0; i < (rand(1, 3) == 1 ? rand(2, rand(1, 4) == 1 ? 10 : 5) : 1) - 1; i++) {
                 this.levelPokemonStats(pokemon);
             }
             pokemon.currentHealth = rand(1, 3) == 1 ? pokemon.health : rand(Math.floor(pokemon.health / 3 * 2), pokemon.health);

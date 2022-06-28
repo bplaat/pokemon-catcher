@@ -93,6 +93,7 @@
                         <div class="mb-5" style="padding-top: 50%; position: relative;">
                             <div ref="spawnsMap" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #000;"></div>
                         </div>
+                        <hr>
 
                         <h3 class="title is-4">Andere verbonden spelers</h3>
                         <div v-if="otherPlayers.length > 0">
@@ -152,17 +153,20 @@
     </div>
 
     <template id="pokemon-item-template">
-        <div class="card">
+        <div class="card" style="display: flex; flex-direction: column; height: 100%;">
             <div class="card-image pokemon-image" :style="`padding-top: 100%; background-image: url('/images/pokemons/${pokemon.id}.png');  background-size: cover; background-position: center center;`"></div>
-            <div style="background-color: #f00">
+            <div style="background-color: #f00;">
                 <div :style="`width: ${ pokemon.currentHealth / pokemon.health * 100}%; height: 8px; background-color: #0b0;`"></div>
             </div>
-            <div class="card-content">
+
+            <div class="card-content" style="flex: 1;">
                 <h2 class="title is-5 mb-2">
                     {{ pokemon.name }}
+                    <span :class="`tag ${pokemon.level < 5 ? '' : (pokemon.level < 10 ? 'is-link' : (pokemon.level < 15 ? 'is-warning' : (pokemon.level < 20 ? 'is-danger' : 'is-dark')))} ml-1`">
+                        {{ pokemon.level }}
+                    </span>
                     <button v-if="actions" @click="isDeleting = true" class="delete is-pulled-right"></button>
                 </h2>
-                <p>Level: <b>{{ pokemon.level }}</b></p>
                 <p>Levenspunten: <b>{{ pokemon.currentHealth }} / {{ pokemon.health }}</b></p>
                 <p>Aanvalspunten: <b>{{ pokemon.attack }}</b></p>
                 <p>Verdedigingspunten: <b>{{ pokemon.defense }}</b></p>
