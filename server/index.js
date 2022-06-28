@@ -47,7 +47,6 @@ wss.on('connection', ws => {
 
     ws.on('message', message => {
         const { type, data } = JSON.parse(message.toString());
-        console.log('[WS]', playerId, type, data);
 
         if (type == 'player.connect') {
             const client = clients.find(client => client.player.id == data.player.id);
@@ -56,7 +55,6 @@ wss.on('connection', ws => {
             playerId = data.player.id;
             send('info', { pokemons, spawns, pokemonsMax: POKEMONS_MAX });
             for (const client of clients) {
-                console.log(client.player)
                 send('player.connect', { player: client.player });
             }
             clients.push({ player: data.player, ws });

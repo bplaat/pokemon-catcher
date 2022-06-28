@@ -35,7 +35,6 @@ function formatDuration(ms) {
 // Global state
 let ws = undefined, pokemons = [], spawns = [];
 function send(type, data) {
-    console.log('SEND', type, data);
     ws.send(JSON.stringify({ type, data }));
 }
 
@@ -75,7 +74,8 @@ const app = new Vue({
         player: { id: uuidv4(), name: '', admin: false, pokemons: [], doneSpawns: [] },
         otherPlayers: [],
         pokemonsMax: undefined,
-        pendingSpawns: []
+        pendingSpawns: [],
+        catchSound: undefined
     },
 
     created() {
@@ -121,7 +121,6 @@ const app = new Vue({
 
         onMessage(message) {
             const { type, data } = JSON.parse(message.data);
-            console.log('RECEIVE', type, data);
 
             if (type == 'info') {
                 this.authed = true;
@@ -258,24 +257,30 @@ const app = new Vue({
         catchFirstSpawn() {
             if (this.hasCatched) {
                 this.isCatching = false;
+                if (catchSound != undefined && !catchSound.paused) {
+                    catchSound.pause();
+                }
                 return;
             }
 
-            const spawn = this.pendingSpawns.shift();
-            this.player.doneSpawns.push(spawn);
+            if (this.pendingSpawns.length > 0) {
+                const spawn = this.pendingSpawns.shift();
+                this.player.doneSpawns.push(spawn);
+            }
 
-            const pokemon = { ...pokemons[rand(0, pokemons.length - 1)] };
+            const pokemon = { ...pokemons[rand(0, rand(1, 4) == 1 ? pokemons.length - 1 : 151)] };
             pokemon.uniqueId = uuidv4();
             pokemon.level = 1;
-            for (let i = 0; i < (rand(1, 3) == 1 ? rand(1, 5) : 1); i++) {
+            for (let i = 0; i < (rand(1, 3) == 1 ? rand(2, 5) : 1) - 1; i++) {
                 this.levelPokemonStats(pokemon);
             }
-            pokemon.currentHealth = pokemon.health;
+            pokemon.currentHealth = rand(1, 3) == 1 ? pokemon.health : rand(Math.floor(pokemon.health / 3 * 2), pokemon.health);
             this.player.pokemons.unshift(pokemon);
             send('player.update', { player: this.player });
 
             this.hasCatched = true;
-            new Audio('/sounds/catch.mp3').play();
+            catchSound = new Audio('/sounds/catch.mp3');
+            catchSound.play();
             setTimeout(() => {
                 this.$refs.pokemonBall.animate([
                     { transform: 'translate(-50%, 150%) scale(0)' },
