@@ -47,22 +47,20 @@
                 </div>
 
                 <div v-if="page == 'game' && tracking">
-                    <div class="box">
-                        <h1 class="title is-3">Hallo {{ player.name }}!</h1>
-                        <p class="my-3">Begin met lopen van je tocht, als je in de buurt komt van een Pokemon Spawn krijg je de mogelijkheid om een pokemon te vangen</p>
-                        <div class="buttons" v-if="player.pokemons.length < pokemonsMax && (player.admin || pendingSpawns.length > 0)">
-                            <button class="button is-link is-large is-fullwidth" @click="isCatching = true, hasCatched = false">Je ziet een pokemon!</button>
-                        </div>
-
-                        <hr>
-                        <h2 class="title is-4">Jouw pokemons ({{ player.pokemons.length }} / {{ pokemonsMax }})</h2>
-                        <div class="columns is-multiline" v-if="player.pokemons.length > 0">
-                            <div class="column is-one-quarter" v-for="pokemon in player.pokemons" :key="pokemon.uniqueId">
-                                <pokemon-item :player="player" :pokemon="pokemon" />
-                            </div>
-                        </div>
-                        <p v-else><i>Je hebt op dit moment nog geen elke pokemon gevangen</i></p>
+                    <h1 class="title is-3">Hallo {{ player.name }}!</h1>
+                    <p class="my-3">Begin met lopen van je tocht, als je in de buurt komt van een Pokemon Spawn krijg je de mogelijkheid om een pokemon te vangen</p>
+                    <div class="buttons" v-if="player.pokemons.length < pokemonsMax && (player.admin || pendingSpawns.length > 0)">
+                        <button class="button is-link is-large is-fullwidth" @click="isCatching = true, hasCatched = false">Je ziet een pokemon!</button>
                     </div>
+
+                    <hr>
+                    <h2 class="title is-4">Jouw pokemons ({{ player.pokemons.length }} / {{ pokemonsMax }})</h2>
+                    <div class="columns is-multiline" v-if="player.pokemons.length > 0">
+                         <div class="column is-one-quarter" v-for="pokemon in player.pokemons" :key="pokemon.uniqueId">
+                            <pokemon-item :player="player" :pokemon="pokemon" />
+                        </div>
+                    </div>
+                    <p v-else><i>Je hebt op dit moment nog geen elke pokemon gevangen</i></p>
 
                     <div v-if="isCatching" :class="{ modal: true, 'is-active': isCatching }" style="z-index: 9999;">
                         <div class="modal-background" @click="isCatching = false"></div>
@@ -86,7 +84,8 @@
                         </div>
                     </div>
 
-                    <div v-if="player.admin" class="box">
+                    <div v-if="player.admin">
+                        <hr>
                         <h2 class="title is-3">Het admin paneel</h2>
 
                         <h3 class="title is-4">Spawners</h3>
@@ -123,6 +122,9 @@
                                                     {{ otherPlayer.admin ? 'Maak weer normaal' : 'Geef admin rechten' }}
                                                 </button>
                                             </div>
+                                            <div class="control">
+                                                <button class="button is-dark" @click="battleStart(otherPlayer.id)">Battle</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -135,6 +137,96 @@
                             </div>
                         </div>
                         <p v-else><i>Er zijn op dit moment geen andere spelers verbonden</i></p>
+
+                        <div v-if="isBattling" :class="{ modal: true, 'is-active': isBattling }" style="z-index: 9999;">
+                            <div class="modal-background"></div>
+
+                            <div class="modal-card">
+                                <div class="modal-card-head">
+                                    <p class="modal-card-title">Pokemon battle met {{ battlePlayer.name }}</p>
+                                    <button class="delete" @click.prevent="battleEnd"></button>
+                                </div>
+
+                                <div class="modal-card-body">
+                                    <div class="columns">
+                                        <div class="column">
+                                            <div class="field">
+                                                <label class="label" for="player-pokemon">Youw pokemon</label>
+                                                <div class="select is-fullwidth">
+                                                    <select id="player-pokemon" v-model="playerPokemonId">
+                                                        <option v-for="pokemon in player.pokemons.filter(pokemon => pokemon.currentHealth > 0)"
+                                                            :key="pokemon.uniqueId" :value="pokemon.uniqueId">
+                                                            {{ pokemon.name }} ({{ pokemon.level }}): {{ pokemon.currentHealth }} / {{ pokemon.health }}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="column">
+                                            <div class="field">
+                                                <label class="label" for="battle-player-pokemon">Tegenpartij pokemon</label>
+                                                <div class="select is-fullwidth">
+                                                    <select id="battle-player-pokemon" v-model="battlePlayerPokemonId">
+                                                        <option v-for="pokemon in battlePlayer.pokemons.filter(pokemon => pokemon.currentHealth > 0)"
+                                                            :key="pokemon.uniqueId" :value="pokemon.uniqueId">
+                                                            {{ pokemon.name }} ({{ pokemon.level }}): {{ pokemon.currentHealth }}/{{ pokemon.health }}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="columns" class="mb-3">
+                                        <div class="column">
+                                            <p v-if="!isBattlePlayerAttacking" class="mb-3"><span class="tag is-danger">Aan het aanvallen</span></p>
+                                            <p v-else class="mb-3"><span class="tag is-link">Aan het verdedigen</span></p>
+
+                                            <pokemon-item v-if="playerPokemonId != undefined" :player="player" :inline="true"
+                                                :pokemon="player.pokemons.find(pokemon => pokemon.uniqueId == playerPokemonId)" :actions="false"></pokemon-item>
+                                            <p v-else><i>Selecteer een pokemon om te vechten!</i></p>
+                                        </div>
+
+                                        <div class="column">
+                                            <p v-if="isBattlePlayerAttacking" class="mb-3"><span class="tag is-danger">Aan het aanvallen</span></p>
+                                            <p v-else class="mb-3"><span class="tag is-link">Aan het verdedigen</span></p>
+
+                                            <pokemon-item v-if="battlePlayerPokemonId != undefined" :player="battlePlayer" :inline="true"
+                                                :pokemon="battlePlayer.pokemons.find(pokemon => pokemon.uniqueId == battlePlayerPokemonId)" :actions="false"></pokemon-item>
+                                            <p v-else><i>Selecteer een pokemon om te vechten!</i></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="columns">
+                                        <div class="column">
+                                            <div class="field">
+                                                <label class="label" for="player-throw">
+                                                    Jouw dobbel worp
+                                                    <span class="tag is-link is-pulled-right" @click="playerThrow = rand(1, 6)">Random</span>
+                                                </label>
+                                                <input class="input" type="number" id="player-throw" min="1" max="6" v-model="playerThrow">
+                                            </div>
+                                        </div>
+
+                                        <div class="column">
+                                            <div class="field">
+                                                <label class="label" for="battle-player-throw">
+                                                    Tegenpartij dobbel worp
+                                                    <span class="tag is-link is-pulled-right" @click="battlePlayerThrow = rand(1, 6)">Random</span>
+                                                </label>
+                                                <input class="input" type="number" id="battle-player-throw" min="1" max="6" v-model="battlePlayerThrow">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-card-foot">
+                                    <button class="button is-link is-fullwidth" @click.prevent="battleTurn">Volgende beurt</button>
+                                    <button class="button is-danger is-fullwidth" @click.prevent="battleEnd">Stop het gevecht</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -153,7 +245,7 @@
     </div>
 
     <template id="pokemon-item-template">
-        <div class="card" style="display: flex; flex-direction: column; height: 100%;">
+        <div class="card" :style="`display: flex; flex-direction: column; ${!inline ? 'height: 100%;' : ''}`">
             <div class="card-image pokemon-image" :style="`padding-top: 100%; background-image: url('/images/pokemons/${pokemon.id}.png');  background-size: cover; background-position: center center;`"></div>
             <div style="background-color: #f00;">
                 <div :style="`width: ${ pokemon.currentHealth / pokemon.health * 100}%; height: 8px; background-color: #0b0;`"></div>

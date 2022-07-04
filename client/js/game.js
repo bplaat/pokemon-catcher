@@ -41,7 +41,7 @@ function send(type, data) {
 // Pokemon item component
 Vue.component('pokemon-item', {
     template: document.getElementById('pokemon-item-template').innerHTML,
-    props: { 'player': {}, 'pokemon': {}, 'actions': { default() { return true } } },
+    props: { 'player': {}, 'pokemon': {}, 'actions': { default() { return true } }, 'inline': { default() { return false } } },
     data() {
         return {
             isDeleting: false
@@ -75,7 +75,15 @@ const app = new Vue({
         otherPlayers: [],
         pokemonsMax: undefined,
         pendingSpawns: [],
-        catchSound: undefined
+        catchSound: undefined,
+
+        isBattling: false,
+        battlePlayer: undefined,
+        isAttacking: false,
+        playerPokemonId: undefined,
+        playerThrow: undefined,
+        battlePlayerPokemonId: undefined,
+        battlePlayerThrow: undefined
     },
 
     created() {
@@ -150,6 +158,8 @@ const app = new Vue({
             if (type == 'player.sound') {
                 if (data.sound == 'heal') new Audio('/sounds/heal.mp3').play();
                 if (data.sound == 'level') new Audio('/sounds/level.mp3').play();
+                if (data.sound == 'battle-start') new Audio('/sounds/battle-start.mp3').play();
+                if (data.sound == 'battle-end') new Audio('/sounds/battle-end.mp3').play();
             }
 
             if (type == 'player.disconnect') {
@@ -225,6 +235,66 @@ const app = new Vue({
             const otherPlayer = this.otherPlayers.find(player => player.id == otherPlayerId);
             otherPlayer.admin = !otherPlayer.admin;
             send('player.update', { player: otherPlayer });
+        },
+
+        battleStart(otherPlayerId) {
+            this.isBattling = true;
+            this.battlePlayer = this.otherPlayers.find(player => player.id == otherPlayerId);
+            this.isBattlePlayerAttacking = true;
+            new Audio('/sounds/battle-start.mp3').play();
+            send('player.sound', { player: { id: this.battlePlayer.id }, sound: 'battle-start' });
+        },
+
+        battleTurn() {
+            const playerPokemon = this.player.pokemons.find(pokemon => pokemon.uniqueId == this.playerPokemonId);
+            const battlePlayerPokemon = this.battlePlayer.pokemons.find(pokemon => pokemon.uniqueId == this.battlePlayerPokemonId);
+
+            const playerThrow = Math.max(Math.min(parseInt(this.playerThrow), 6), 1);
+            const battlePlayerThrow = Math.max(Math.min(parseInt(this.battlePlayerThrow), 6), 1);
+
+            if (this.isBattlePlayerAttacking) {
+                this.isBattlePlayerAttacking = false;
+
+                playerPokemon.currentHealth -= Math.max(Math.floor(battlePlayerPokemon.attack / 6 * battlePlayerThrow) -
+                    Math.floor(playerPokemon.defense / 6 * playerThrow), 0);
+                if (playerPokemon.currentHealth < 0) {
+                    playerPokemon.currentHealth = 0;
+                }
+
+                send('player.update', { player: this.player });
+
+                if (playerPokemon.currentHealth == 0) {
+                    this.playerPokemonId = undefined;
+                }
+            }
+            else {
+                this.isBattlePlayerAttacking = true;
+
+                battlePlayerPokemon.currentHealth -= Math.max(Math.floor(playerPokemon.attack / 6 * playerThrow) -
+                    Math.floor(battlePlayerPokemon.defense / 6 * battlePlayerThrow), 0);
+                if (battlePlayerPokemon.currentHealth < 0) {
+                    battlePlayerPokemon.currentHealth = 0;
+                }
+
+                send('player.update', { player: this.battlePlayer });
+
+                if (battlePlayerPokemon.currentHealth == 0) {
+                    this.battlePlayerPokemonId = undefined;
+                }
+            }
+
+            this.playerThrow = undefined;
+            this.battlePlayerThrow = undefined;
+        },
+
+        battleEnd() {
+            if (this.battlePlayer == undefined) return;
+            new Audio('/sounds/battle-end.mp3').play();
+            send('player.sound', { player: { id: this.battlePlayer.id }, sound: 'battle-end' });
+            this.isBattling = false;
+            this.battlePlayer = undefined;
+            this.playerPokemonId = undefined;
+            this.battlePlayerPokemonId = undefined;
         },
 
         levelPokemonStats(pokemon) {
