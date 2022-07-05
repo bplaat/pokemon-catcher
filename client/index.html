@@ -41,9 +41,19 @@
                     </div>
                 </form>
 
+                <div v-if="page == 'init'">
+                    <p class="mb-3">Je moet op de knop hier onderin drukken om het spel te starten.</p>
+                    <div class="buttons">
+                        <button class="button is-link is-large is-fullwidth" @click.prevent="initGame">Begin met spelen</button>
+                    </div>
+                </div>
+
                 <div v-if="page == 'game' && !tracking">
                     <p>Pokemon Catcher gebruikt jou geolocatie om je te kunnen volgen, geef hier toestemming voor en begin met spelen!</p>
-                    <p>Als je toestemming hebt gegeven en dit scherm zie je weer, herlaad dan de pagina!</p>
+                    <p class="mb-3">Als je toestemming hebt gegeven druk dan op de knop hier beneden om door te gaan.</p>
+                    <div class="buttons">
+                        <button class="button is-link is-large is-fullwidth" @click.prevent="requestLocation">Herlaad locatie gegevens</button>
+                    </div>
                 </div>
 
                 <div v-if="page == 'game' && tracking">
