@@ -20,10 +20,26 @@ const POKEMONS_MAX = 12;
 const pokemons = JSON.parse(readFileSync('pokemons.json'));
 
 const spawns = [
-    { id: uuidv4(), name: 'Post 1', latitude: 52.005302938354355, longitude: 4.751652132282453, radius: 50, timeout: 10 * 1000 },
-    { id: uuidv4(), name: 'Post 2', latitude: 52.005117123634726, longitude: 4.7539506386986075, radius: 50, timeout: 10 * 1000 },
-    { id: uuidv4(), name: 'Post 3', latitude: 52.00566498051425, longitude: 4.750535871569437, radius: 50, timeout: 10 * 1000 },
-    { id: uuidv4(), name: 'Clubhuis', latitude: 52.008482954474154, longitude: 4.736079388865739, radius: 100, timeout: 60 * 1000 }
+    { id: uuidv4(), name: 'Het clubhuis', latitude: 51.882032, longitude: 6.387032, radius: 100, timeout: 15 * 60 * 1000 },
+
+    { id: uuidv4(), name: 'Post 1', latitude: 51.883361, longitude: 6.400194, radius: 75, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Post 2', latitude: 51.888833, longitude: 6.394667, radius: 75, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Post 3', latitude: 51.896472, longitude: 6.392889, radius: 75, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Post 4', latitude: 51.905056, longitude: 6.394500, radius: 75, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Post 5', latitude: 51.916444, longitude: 6.371972, radius: 75, timeout: 24 * 60 * 60 * 1000 },
+
+    { id: uuidv4(), name: 'Vangpunt 1', latitude: 51.880417, longitude: 6.388667, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Vangpunt 2', latitude: 51.880472, longitude: 6.394306, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Vangpunt 3', latitude: 51.884611, longitude: 6.399139, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Vangpunt 4', latitude: 51.885861, longitude: 6.393889, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Vangpunt 5', latitude: 51.891306, longitude: 6.393361, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Vangpunt 6', latitude: 51.898250, longitude: 6.394667, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Vangpunt 7', latitude: 51.902639, longitude: 6.395417, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Vangpunt 8', latitude: 51.906083, longitude: 6.390806, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Vangpunt 9', latitude: 51.909028, longitude: 6.388611, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+    { id: uuidv4(), name: 'Vangpunt 10', latitude: 51.913583, longitude: 6.377278, radius: 50, timeout: 24 * 60 * 60 * 1000 },
+
+    { id: uuidv4(), name: 'Het zwembad', latitude: 51.914899, longitude: 6.370887, radius: 100, timeout: 15 * 60 * 1000 }
 ];
 
 // Websocket server

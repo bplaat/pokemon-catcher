@@ -66,7 +66,6 @@ const app = new Vue({
     data: {
         page: 'connecting',
         connected: false,
-        authed: false,
         tracking: false,
         spawnsMapCreated: false,
         isCatching: false,
@@ -118,7 +117,6 @@ const app = new Vue({
         onOpen() {
             this.connected = true;
             if (localStorage.getItem('player') != null) {
-                this.page = 'init';
                 this.player = JSON.parse(localStorage.getItem('player'));
                 if (this.player.doneSpawns == undefined) this.player.doneSpawns = [];
                 send('player.connect', { player: this.player });
@@ -131,10 +129,10 @@ const app = new Vue({
             const { type, data } = JSON.parse(message.data);
 
             if (type == 'info') {
-                this.authed = true;
                 pokemons = data.pokemons;
                 spawns = data.spawns;
                 this.pokemonsMax = data.pokemonsMax;
+                this.page = 'init';
             }
 
             if (type == 'player.connect') {
@@ -213,6 +211,7 @@ const app = new Vue({
                     const doneSpawn = this.player.doneSpawns.find(otherSpawn => otherSpawn.id == spawn.id);
                     const pendingSpawn = this.pendingSpawns.find(otherSpawn => otherSpawn.id == spawn.id);
                     if (doneSpawn == undefined && pendingSpawn == undefined) {
+                        new Audio('/sounds/intro.mp3').play();
                         this.pendingSpawns.push({ id: spawn.id, time: Date.now(), timeout: spawn.timeout });
                     }
                 }
